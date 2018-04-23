@@ -26,7 +26,7 @@ void SPI1_init() {
 void setVoltage(char channel, unsigned short voltage){
     unsigned char LSB,MSB;
     
-    LSB = (voltage << 2)&0x00FF;               
+    LSB = (voltage << 2) & 0x00FF;               
     MSB = channel << 7;
     MSB |= 0b01110000;
     MSB |= voltage >> 6;  
