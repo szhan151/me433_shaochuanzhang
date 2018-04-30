@@ -47,12 +47,16 @@ void I2C_read_multiple(unsigned char address, unsigned char regis, unsigned char
     i2c_master_stop();
 }
 
-float getxXL(unsigned char * data) { // convert x-acceleration 
-    signed short x = data[9]<<8 | data[8];
-    return x*(2.0/32757.0);
+float read_x(unsigned char * data) { 
+    float value;
+    short int x = data[9]<<8 | data[8];
+    value = ((float)x/(float)16000);
+    return value;
 }
 
-float getyXL(unsigned char * data) { // convert y-acceleration 
-    signed short y = data[11]<<8 | data[10];
-    return y*(2.0/32757.0);
+float read_y(unsigned char * data) { 
+    float value;
+    short int y = data[11]<<8 | data[10];
+    value = ((float)y/(float)16000);
+    return value;
 }

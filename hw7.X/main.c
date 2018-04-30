@@ -4,8 +4,10 @@
 #include "i2c_master_noint.h"
 #include "ST7735.h"
 #include "LSM6DS333.h"
+#include <stdlib.h>
+#include <math.h>
 
-#define STRINGLENGTH 100
+#define len 60
 
 // DEVCFG0
 #pragma config DEBUG = OFF // no debugging
@@ -42,44 +44,117 @@
 #pragma config FUSBIDIO = ON // USB pins controlled by USB module
 #pragma config FVBUSONIO = ON // USB BUSON controlled by USB module
 
+void acc_display(float Gx, float Gy){
+    int i,j;
+    char xlength = abs(Gx * len);
+    char ylength = abs(Gy * len);
+    if (Gx>0){
+        for (i=0;i<xlength;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64+i,64+j,GREEN);
+            }
+        }
+        if (xlength < len){
+            for (i=xlength;i<len;i++){
+                for(j=0;j<2;j++){
+                    LCD_drawPixel(64+i,64+j,BLUE);
+                }
+            }
+        }
+        for (i=1;i<len;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64-i,64+j,BLUE);
+            }
+        }    
+    }
+    else{
+        for (i=0;i<xlength;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64-i,64+j,GREEN);
+            }
+        }
+        if (xlength < len){
+            for (i=xlength;i<len;i++){
+                for(j=0;j<2;j++){
+                    LCD_drawPixel(64-i,64+j,BLUE);
+                }
+            }
+        }
+        for (i=1;i<len;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64+i,64+j,BLUE);
+            }
+        } 
+    }
+    if (Gy>0){
+        for (i=0;i<ylength;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64+j,64+i,GREEN);
+            }
+        }
+        if (ylength < len){
+            for (i=ylength;i<len;i++){
+                for(j=0;j<2;j++){
+                    LCD_drawPixel(64+j,64+i,BLUE);
+                }
+            }
+        }
+        for (i=1;i<len;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64+j,64-i,BLUE);
+            }
+        }
+    }
+    else{
+        for (i=0;i<ylength;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64+j,64-i,GREEN);
+            }
+        }
+        if (ylength < len){
+            for (i=ylength;i<len;i++){
+                for(j=0;j<2;j++){
+                    LCD_drawPixel(64+j,64-i,BLUE);
+                }
+            }
+        }
+        for (i=1;i<len;i++){
+            for(j=0;j<2;j++){
+                LCD_drawPixel(64+j,64+i,BLUE);
+            }
+        }
+    }
+    
+}
 
 int main() {
-    unsigned char dataReg8[STRINGLENGTH]={};
-    // short dataReg16[STRINGLENGTH];
-    char str1[STRINGLENGTH];
-    int i;
-    float Gx,Gy;
-    
     __builtin_disable_interrupts();
-      // set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
-    __builtin_mtc0(_CP0_CONFIG, _CP0_CONFIG_SELECT, 0xa4210583);
-
-    // 0 data RAM access wait states
-    BMXCONbits.BMXWSDRM = 0x0;
-
-    // enable multi vector interrupts
-    INTCONbits.MVEC = 0x1;
-
-    // disable JTAG to get pins back
-    DDPCONbits.JTAGEN = 0;
 
     TRISAbits.TRISA4 = 0; // set LED an output pin
-    TRISBbits.TRISB4 = 1; // set push button an input pin
     LATAbits.LATA4 = 1; // turn LED off
-    LSM6DS333_init();
+    //init();
+    SPI1_init();
     LCD_init();
-    LCD_clearScreen(BACKGROUND);
+    LCD_clearScreen(BLACK);
 
     __builtin_enable_interrupts();
+    
+    unsigned char data[100];
+    float Gx,Gy;
+    char str1[100],str2[100];
 
     while(1) {
         _CP0_SET_COUNT(0);
-        while (_CP0_GET_COUNT()<2400000) {;}
-        I2C_read_multiple(IMU_ADDR, 0x0f, dataReg8, 10);
-        sprintf(str1,"Gy = %x!",dataReg8[0]);
-        LCD_drawString(10,20,str1,BLUE); //String
-        sprintf(str1,"Gy = %x!",dataReg8[1]);
-        LCD_drawString(10,40,str1,BLUE); //String
+        I2C_read_multiple(0b1101010, 0x20, data, 14);
+        Gx = read_x(data);
+        Gy = read_y(data);
+        acc_display(Gx,Gy);
+        sprintf(str1,"x_raw: %d",(int)(Gx*16000));
+        LCD_drawString(10,130,str1,BLUE); //String
+        sprintf(str2,"y_raw: %d",(int)(Gy*16000));
+        LCD_drawString(10,140,str2,BLUE); //String       
+        while (_CP0_GET_COUNT()<1200000) {;}
+        LATAbits.LATA4=!LATAbits.LATA4;
     }
-    return 0;
+
 }
