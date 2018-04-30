@@ -3,9 +3,9 @@
 
 #define IMU_ADDR 0b1101010 
 
-void LSM6DS333_init(void);
+void init(void);
 void I2C_read_multiple(unsigned char, unsigned char, unsigned char *, int);
-float getxXL(unsigned char * );
-float getyXL(unsigned char * );
+float read_x(unsigned char * );
+float read_y(unsigned char * );
 
 #endif

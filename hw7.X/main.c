@@ -131,19 +131,18 @@ int main() {
     __builtin_disable_interrupts();
 
     TRISAbits.TRISA4 = 0; // set LED an output pin
-    LATAbits.LATA4 = 1; // turn LED off
-    //init();
-    SPI1_init();
+    LATAbits.LATA4 = 0; // turn LED off
+   
     LCD_init();
     LCD_clearScreen(BLACK);
 
-    __builtin_enable_interrupts();
-    
-    unsigned char data[100];
-    float Gx,Gy;
-    char str1[100],str2[100];
+__builtin_enable_interrupts();
 
-    while(1) {
+unsigned char data[100];
+float Gx,Gy;
+char str1[100],str2[100];
+
+while(1) {
         _CP0_SET_COUNT(0);
         I2C_read_multiple(0b1101010, 0x20, data, 14);
         Gx = read_x(data);
