@@ -196,4 +196,7 @@ build/default/production/_ext/1360937237/app.o:  \
  ../../../../framework/usb/src/usb_device_function_driver.h  \
  ../../../../framework/usb/usb_hid.h  \
 ../src/app.h  \
-../src/mouse.h 
+../src/mouse.h  \
+ ../src/ST7735.h  \
+../src/i2c_master_noint.h  \
+../src/imc.h 
