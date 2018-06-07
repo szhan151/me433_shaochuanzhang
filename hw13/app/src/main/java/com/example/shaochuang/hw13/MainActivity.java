@@ -147,9 +147,26 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             }
         }
 
+        int sum_mr = 0; // the sum of the mass times the radius
+        int sum_m = 0; // the sum of the masses
+        for (int i = 0; i < bmp.getWidth(); i++) {
+            if ( (red(pixels[i]) - (green(pixels[i])+blue(pixels[i]))/2) > -R)  && (red(pixels[i]) - (green(pixels[i])+blue(pixels[i]))/2) < R) &&(red(pixels[i])  > T)) {
+                pixels[i] = rgb(1, 1, 1); // set the pixel to almost 100% black
+
+                sum_m = sum_m + green(pixels[i])+red(pixels[i])+blue(pixels[i]);
+                sum_mr = sum_mr + (green(pixels[i])+red(pixels[i])+blue(pixels[i]))*i;
+            }
+        }
+        // only use the data if there were a few pixels identified, otherwise you might get a divide by 0 error
+        if(sum_m>5){
+            COM = sum_mr / sum_m;
+        }
+        else{
+            COM = 0;
+        }
         // draw a circle at some position
         int pos = 50;
-        canvas.drawCircle(pos, 240, 5, paint1); // x position, y position, diameter, color
+        canvas.drawCircle(pos, 240, 10, paint1); // x position, y position, diameter, color
 
         // write the pos as text
         canvas.drawText("pos = " + pos, 10, 200, paint1);
