@@ -1,4 +1,4 @@
-package com.example.wh.helloworld;
+package com.example.shaochuan.helloworld;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -377,7 +377,3 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         prevtime = nowtime;
     }
 }
-
-
-
-
